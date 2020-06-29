@@ -187,7 +187,7 @@ public class SystemUtils {
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
-        return Config.instance().preferences().get("seadas8.context", "seadas8");
+        return Config.instance().preferences().get("snap.context", "snap");
     }
 
     /**
@@ -201,8 +201,9 @@ public class SystemUtils {
      * @since BEAM 4.10
      */
     public static String getApplicationName() {
-        return Config.instance().preferences().get(getApplicationContextId() + ".application.name", "SEADAS8");
+        return Config.instance().preferences().get(getApplicationContextId() + ".application.name", "SNAP");
     }
+
 
     /**
      * Gets the current working directory, or the directory pointed to by '.' if the actual working directory cannot be
