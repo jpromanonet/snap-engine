@@ -14,7 +14,6 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -75,7 +74,7 @@ public class BigGeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     static DecodeQualification getDecodeQualificationImpl(ImageInputStream stream) {
         try {
-            String mode = getTiffMode(stream);
+            String mode = Utils.getTiffMode(stream);
             if ("BigTiff".equals(mode)) {
                 if (getTiffImageReader(stream) != null) {
                     return DecodeQualification.SUITABLE;
@@ -106,36 +105,4 @@ public class BigGeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         return imageReader;
     }
 
-    static String getTiffMode(ImageInputStream stream) throws IOException {
-        try {
-            stream.mark();
-            int byteOrder = stream.readUnsignedShort();
-            switch (byteOrder) {
-                case 0x4d4d:
-                    stream.setByteOrder(ByteOrder.BIG_ENDIAN);
-                    break;
-                case 0x4949:
-                    stream.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-                    break;
-                default:
-                    // Fallback
-                    stream.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-                    break;
-            }
-
-            int magic = stream.readUnsignedShort();
-            switch (magic) {
-                case 43:
-                    // BIG-TIFF
-                    return "BigTiff";
-                case 42:
-                    // normal TIFF
-                    return "Tiff";
-                default:
-                    return "Unknown";
-            }
-        } finally {
-            stream.reset();
-        }
-    }
 }
