@@ -28,8 +28,8 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.FileCacheImageInputStream;
+import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
@@ -228,7 +228,6 @@ public class GeoTiffImageReader implements Closeable, GeoTiffRasterRegion {
 
     private static TIFFImageReader buildImageReader(Object sourceImage) throws IOException {
         TIFFImageReader imageReader = null;
-        ImageIO.setUseCache(false); // use_cache in CacheInfo defaults to true. This could be set by a preference.
         ImageInputStream imageInputStream;
         // ImageIO.createImageInputStream creates for some inputs a MemoryCacheImageInputStream.
         // This causes problems because the class MemoryCache in JDK has an issue.
@@ -242,13 +241,14 @@ public class GeoTiffImageReader implements Closeable, GeoTiffRasterRegion {
         if (sourceImage instanceof InputStream) {
             imageInputStream = new FileCacheImageInputStream((InputStream) sourceImage, systemCacheDir);
         } else if (sourceImage instanceof File) {
-            if (shouldUseFileCache(sourceImage)) {
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream((File) sourceImage));
-                imageInputStream = new FileCacheImageInputStream(bufferedInputStream, null);
-            } else {
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream((File) sourceImage));
-                imageInputStream = new MemoryCacheImageInputStream(bufferedInputStream);
-            }
+            imageInputStream = new FileImageInputStream((File) sourceImage);
+//            if (shouldUseFileCache(sourceImage)) {
+//                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream((File) sourceImage));
+//                imageInputStream = new FileCacheImageInputStream(bufferedInputStream, null);
+//            } else {
+//                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream((File) sourceImage));
+//                imageInputStream = new MemoryCacheImageInputStream(bufferedInputStream);
+//            }
         } else {
             throw new IllegalArgumentException("sourceImage should be of type InputStream or File!");
         }
